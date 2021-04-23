@@ -72,8 +72,13 @@ def next_gen(prev, elites=5, xover="random", mutation_rate=.1):
     
     
     for i in range(len(pop)):
-        print(i)
-        pop.iloc[i]["fitness"] = feval(pop.iloc[i]["search"])
+        try:  
+            print(i)
+            pop.iloc[i]["fitness"] = feval(pop.iloc[i]["search"])
+        except Exception as e: 
+            print(e)
+            params = pop.iloc[i]['search']
+            print(f"Error occurred with parameter set: {params}")
     
     return pop
 
