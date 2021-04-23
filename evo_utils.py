@@ -44,8 +44,8 @@ def init_pop(pop_size):
     print("Initializing population... ")
     pop = pd.DataFrame(index=pd.RangeIndex(start=0, stop=pop_size, name="individual"), columns=["search", "fitness"])
     for i in range(pop_size):
-        print(i)
         pop.iloc[i]["search"] = list(np.random.uniform(low=0, high=1, size=4))
+        print(i, pop.iloc[i]["search"])
         pop.iloc[i]["fitness"] = feval(pop.iloc[i]["search"])
     return(pop)
 
@@ -63,10 +63,16 @@ def next_gen(prev, elites=5, xover="random", mutation_rate=.1):
         if xover == "none":
             child=x
         if xover == "random":
-            splice = np.random.randint(0,5)
+            splice = np.random.randint(0,3)
             y = prev.sample(weights=prev["fitness"]).iloc[0]["search"]
-            child = x[:splice] + y[splice:]        
-            child = [np.random.normal(c, scale=mutation_rate) for c in child]
+            child = x[:splice] + y[splice:]
+
+            # naive method for truncated normal distribution in range [0,1]
+            for i in range(len(child)):
+                param = np.random.normal(child[i], scale=mutation_rate)
+                while param<0 or param>1:
+                    param = np.random.normal(child[i], scale=mutation_rate)
+                child[i] = param
         
         pop.loc[i]["search"] = child
     
