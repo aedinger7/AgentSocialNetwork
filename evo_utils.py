@@ -16,6 +16,7 @@ _SOCIAL_SIZE = 20
     
 def feval(params, run_duration=_RUN_DURATION, show=False):
     # set up network
+    print(params)
     network = social_net(size=_SOCIAL_SIZE, beliefs_size=_BELIEFS_SIZE, rationality=params[0], pressure=params[1], tolerance=params[2], a=params[3])
 
     runs = 0
@@ -53,7 +54,6 @@ def next_gen(prev, elites=5, xover="random", mutation_rate=.1):
     prev.sort_values("fitness", ascending=False, inplace=True)
     prev.reset_index(drop=True, inplace=True)
 
-    print("a:", prev)
     
     for i in range(elites):
         pop.iloc[i]['search'] = prev.iloc[i]['search'].copy()
@@ -77,12 +77,12 @@ def next_gen(prev, elites=5, xover="random", mutation_rate=.1):
         
         pop.loc[i]["search"] = child
 
-    print("b:", prev)
     
     
     for i in range(len(pop)):
         # try:  
         #     print(i)
+        print("d:", pop.iloc[i]["search"])
         pop.iloc[i]["fitness"] = feval(pop.iloc[i]["search"])
         # except Exception as e: 
         #     print(e)
