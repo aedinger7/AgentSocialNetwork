@@ -57,6 +57,7 @@ def next_gen(prev, elites=5, xover="random", mutation_rate=.1):
     
     for i in range(elites):
         pop.iloc[i]['search'] = prev.iloc[i]['search'].copy()
+        print(i,": ", pop)
         
     for i in range(elites, len(pop)):
         x = prev.sample(weights=prev["fitness"]).iloc[0]["search"].copy()
@@ -75,27 +76,25 @@ def next_gen(prev, elites=5, xover="random", mutation_rate=.1):
                     param = np.random.normal(child[i], scale=mutation_rate)
                 child[i] = param
         
+        print("child ", i, ":", child)
         pop.loc[i]["search"] = child
-
     
+    print("fin: ", pop)
+
     
     for i in range(len(pop)):
         # try:  
         #     print(i)
-        print("d:", pop.iloc[i]["search"])
         pop.iloc[i]["fitness"] = feval(pop.iloc[i]["search"])
         # except Exception as e: 
         #     print(e)
         #     params = pop.iloc[i]['search']
         #     print(f"Error occurred with parameter set: {params}")
-    
     return pop
 
 def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="uniform"):
     print(f"Evolving: pop size = {pop_size} for {generations} generations")
     prev = init_pop(pop_size)
-
-    print("c: ", prev)
 
     evos = pd.DataFrame(index=pd.RangeIndex(start=0, stop=generations, name="generation"), columns=["best", "mean"])
     if mutation == "uniform":
@@ -121,11 +120,10 @@ def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="unif
 #         for i in range(0, generations):
 #             evos.loc[i]["best"] = prev["fitness"].max()
 #             evos.loc[i]["mean"] = prev["fitness"].mean()
-            
+#           
 #             mutation_rate = 0.3*((256 - evos.loc[i]["mean"])/256)**2
 #             if ((256 - evos.loc[i]["mean"])/256) < 0.2:
-                    
-            
+#                    
 #             mutation_rate = 0.15*((256 - evos.loc[i]["mean"])/256)**2
 #             prev = next_gen(prev, elites=elites, xover = xover, mutation_rate = mutation_rate)
             
