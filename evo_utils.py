@@ -70,7 +70,7 @@ def next_gen(prev, elites=5, xover="random", mutation_rate=.1):
             child = x[:splice] + y[splice:]
 
             # naive method for truncated normal distribution in range [0,1]
-            for i in range(len(child)):
+            for j in range(len(child)):
                 param = np.random.normal(child[i], scale=mutation_rate)
                 while param<0 or param>1:
                     param = np.random.normal(child[i], scale=mutation_rate)
