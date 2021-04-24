@@ -108,7 +108,6 @@ def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="unif
             prev.to_csv("evo_test_run.csv")
 
             if(i%5) == 0:
-                print(pre)
                 print(prev.iloc[prev['fitness'].idxmax()]['search'])
                 print(f"Generation {i} best subject:", prev.iloc[prev['fitness'].idxmax()])
                 feval(prev.iloc[prev['fitness'].idxmax()]['search'], show=True)
