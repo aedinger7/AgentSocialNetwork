@@ -71,10 +71,10 @@ def next_gen(prev, elites=5, xover="random", mutation_rate=.1):
 
             # naive method for truncated normal distribution in range [0,1]
             for j in range(len(child)):
-                param = np.random.normal(child[i], scale=mutation_rate)
+                param = np.random.normal(child[j], scale=mutation_rate)
                 while param<0 or param>1:
-                    param = np.random.normal(child[i], scale=mutation_rate)
-                child[i] = param
+                    param = np.random.normal(child[j], scale=mutation_rate)
+                child[j] = param
         
         print("child ", i, ":", child)
         pop.loc[i]["search"] = child
