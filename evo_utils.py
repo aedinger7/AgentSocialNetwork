@@ -79,7 +79,7 @@ def next_gen(prev, elites=5, xover="random", mutation_rate=.1):
         print("child ", i, ":", child)
         pop.loc[i]["search"] = child
     
-    print("fin: ", pop)
+    
 
     
     for i in range(len(pop)):
@@ -90,6 +90,8 @@ def next_gen(prev, elites=5, xover="random", mutation_rate=.1):
         #     print(e)
         #     params = pop.iloc[i]['search']
         #     print(f"Error occurred with parameter set: {params}")
+
+    print("fin: ", pop)
     return pop
 
 def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="uniform"):
@@ -110,7 +112,7 @@ def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="unif
             prev.to_csv("evo_test_run.csv")
 
             if(i%5) == 0:
-                print(prev.iloc[prev['fitness'].idxmax()]['search'])
+                print(prev['fitness'], print(type(prev['fitness'][0])))
                 print(f"Generation {i} best subject:", prev.iloc[prev['fitness'].idxmax()])
                 feval(prev.iloc[prev['fitness'].idxmax()]['search'], show=True)
 
