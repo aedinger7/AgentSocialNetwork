@@ -52,11 +52,11 @@ def next_gen(prev, elites=5, xover="random", mutation_rate=.1):
     pop = pd.DataFrame(index=pd.RangeIndex(start=0, stop=len(prev), name="individual"), columns=["search", "fitness"])
     prev.sort_values("fitness", ascending=False, inplace=True)
     prev.reset_index(drop=True, inplace=True)
+
+    print("a:", prev)
     
     for i in range(elites):
         pop.iloc[i]['search'] = prev.iloc[i]['search'].copy()
-        
-    print("a:", pop)
         
     for i in range(elites, len(pop)):
         x = prev.sample(weights=prev["fitness"]).iloc[0]["search"].copy()
@@ -76,14 +76,14 @@ def next_gen(prev, elites=5, xover="random", mutation_rate=.1):
                 child[i] = param
         
         pop.loc[i]["search"] = child
-    
-    print("b: ", pop)
+
+    print("b:", prev)
     
     
     for i in range(len(pop)):
         # try:  
         #     print(i)
-            pop.iloc[i]["fitness"] = feval(pop.iloc[i]["search"])
+        pop.iloc[i]["fitness"] = feval(pop.iloc[i]["search"])
         # except Exception as e: 
         #     print(e)
         #     params = pop.iloc[i]['search']
@@ -94,6 +94,9 @@ def next_gen(prev, elites=5, xover="random", mutation_rate=.1):
 def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="uniform"):
     print(f"Evolving: pop size = {pop_size} for {generations} generations")
     prev = init_pop(pop_size)
+
+    print("c: ", prev)
+
     evos = pd.DataFrame(index=pd.RangeIndex(start=0, stop=generations, name="generation"), columns=["best", "mean"])
     if mutation == "uniform":
         for i in range(0, generations):
