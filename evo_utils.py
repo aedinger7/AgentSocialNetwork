@@ -16,8 +16,7 @@ _SOCIAL_SIZE = 20
     
 def feval(params, run_duration=_RUN_DURATION, show=False):
     # set up network
-    network = social_net(size=_SOCIAL_SIZE, beliefs_size=_BELIEFS_SIZE, 
-        rationality=params[0], pressure=params[1], tolerance=params[2], a=params[3])
+    network = social_net(size=_SOCIAL_SIZE, beliefs_size=_BELIEFS_SIZE, rationality=params[0], pressure=params[1], tolerance=params[2], a=params[3])
 
     runs = 0
     while runs<_RUN_DURATION:
@@ -101,9 +100,13 @@ def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="unif
             prev = next_gen(prev, elites=elites, mutation_rate=mutation_rate)
             print("Gen: ", i, "\tMax: ", evos.loc[i]["best"], "\tMean: ", evos.loc[i]["mean"])
             
+            prev.to_csv("evo_test_run.csv")
+
             if(i%5) == 0:
-                print(f"Generation {i} best subject:")
+                print(f"Generation {i} best subject:", prev.iloc[prev['fitness'].idxmax()])
                 feval(prev.iloc[prev['fitness'].idxmax()]['search'], show=True)
+
+            
             
 #     if mutation == "non-uniform":
 #         for i in range(0, generations):
