@@ -56,6 +56,8 @@ def next_gen(prev, elites=5, xover="random", mutation_rate=.1):
     for i in range(elites):
         pop.iloc[i]['search'] = prev.iloc[i]['search'].copy()
         
+    print("a:", pop)
+        
     for i in range(elites, len(pop)):
         x = prev.sample(weights=prev["fitness"]).iloc[0]["search"].copy()
         
@@ -75,15 +77,17 @@ def next_gen(prev, elites=5, xover="random", mutation_rate=.1):
         
         pop.loc[i]["search"] = child
     
+    print("b: ", pop)
+    
     
     for i in range(len(pop)):
-        try:  
-            print(i)
+        # try:  
+        #     print(i)
             pop.iloc[i]["fitness"] = feval(pop.iloc[i]["search"])
-        except Exception as e: 
-            print(e)
-            params = pop.iloc[i]['search']
-            print(f"Error occurred with parameter set: {params}")
+        # except Exception as e: 
+        #     print(e)
+        #     params = pop.iloc[i]['search']
+        #     print(f"Error occurred with parameter set: {params}")
     
     return pop
 
@@ -97,12 +101,15 @@ def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="unif
             evos.loc[i]["mean"] = prev["fitness"].mean()
 #             mutation_rate=max(2-evos.loc[i]["best"]*2000,.1)
             mutation_rate=2
+            prev.to_csv("evo_test_run_m1.csv")
             prev = next_gen(prev, elites=elites, mutation_rate=mutation_rate)
             print("Gen: ", i, "\tMax: ", evos.loc[i]["best"], "\tMean: ", evos.loc[i]["mean"])
             
             prev.to_csv("evo_test_run.csv")
 
             if(i%5) == 0:
+                print(pre)
+                print(prev.iloc[prev['fitness'].idxmax()]['search'])
                 print(f"Generation {i} best subject:", prev.iloc[prev['fitness'].idxmax()])
                 feval(prev.iloc[prev['fitness'].idxmax()]['search'], show=True)
 
