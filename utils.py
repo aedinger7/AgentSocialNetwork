@@ -14,7 +14,11 @@ def vertex_strength(G, node):
 
 # Local clustering coefficient from Barrat et al 2004
 def local_clustering(G, node):
-    n = 1/(vertex_strength(G,node)*(G.degree[0]-1))
+    deg = 0
+    for j in range(len(G)):
+        if j!=node and G.edges[j,node]: 
+            deg += 1
+    n = 1/(vertex_strength(G,node)*(deg))
     s = 0
     for j in range(len(G)):
         for h in range(len(G)):

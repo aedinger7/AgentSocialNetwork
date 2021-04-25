@@ -16,14 +16,15 @@ class social_net:
     # a: float (0, 1) - rate of change in social preference for another agent with which it interacts
     # b: float (0, 1) - rate of decay in social preference for all other agents following an interaction with a specific agent
     # (b is currently set to be proportional to a)
-    def __init__(self, size, beliefs_size, coherent=False, rationality=1, pressure=0, tolerance=3, a = 0.5):
+    def __init__(self, size, beliefs_size, coherent=False, rationality=1, pressure=0, tolerance=3, a=0.5, b=0.1, choice_type="both"):
         self.size = size
         self.agents = []
         self.rationality = rationality
         self.pressure = pressure
         self.tolerance = tolerance
+        self.choice_type = choice_type
         self.a = a
-        self.b = (1-a/size)
+        self.b = b
         for i in range(size):
             self.agents.append(agent(size=beliefs_size, coherent=coherent, zeros=True))
         
@@ -42,8 +43,12 @@ class social_net:
         self.__update_edges()
 
 
-    def clustering_coeff(self):
+    def social_clustering(self):
         return global_clustering(self.I)
+
+    
+    def belief_clustering(self):
+        return global_clustering(self.P)
         
     
     def agent_coherence(self):
@@ -80,7 +85,10 @@ class social_net:
         other_agents = []
         for j in range(len(self.agents)):
             if j != i:
-                probabilities.append(self.P.edges[(i,j)]['weight'] + self.I.edges[(i,j)]['weight'])
+                if self.choice_type == "beliefs":
+                    probabilities.append(self.P.edges[(i,j)]['weight'])        
+                else:
+                    probabilities.append(self.P.edges[(i,j)]['weight'] + self.I.edges[(i,j)]['weight'])
                 other_agents.append(j)
         probabilities = [p/sum(probabilities) for p in probabilities]
         c = np.random.choice(other_agents, p=probabilities)

@@ -112,12 +112,16 @@ class agent:
         while n2 == n1:
             n2 = np.random.choice(range(self.size))
 
-        while np.random.random() < tolerance and count < self.size:
+
+        while count < self.size:
             n1 = n2
             while n2 == n1:
                 n2 = np.random.choice(range(self.size))
             if not other.substitute(n1, n2, self.beliefs.edges[n1,n2]['weight'], rationality=rationality, pressure=pressure):
                 d += 1
+                if np.random.random() < tolerance:
+                    break
+                
             
             count += 1
 
@@ -126,6 +130,8 @@ class agent:
                 n2 = np.random.choice(range(self.size))
             if not self.substitute(n1, n2, other.beliefs.edges[n1,n2]['weight'], rationality=rationality, pressure=pressure):
                 d += 1
+                if np.random.random() < tolerance:
+                    break
 
             count += 1
 
