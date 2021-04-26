@@ -28,7 +28,7 @@ def feval(params, run_duration=_RUN_DURATION, show=False):
         print(f"rationality={params[0]}, pressure={params[1]}, tolerance={params[2]}, a={params[3]}")
         network.agent_connections()
         
-    return network.clustering_coeff()
+    return network.social_clustering()
 
 # def plot(outputs, step_size=_STEP_SIZE):
 #     run_duration = transient_duration + eval_duration
@@ -112,7 +112,7 @@ def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="unif
             prev.to_csv("evo_test_run.csv")
 
             if(i%5) == 0:
-                print(prev['fitness'], print(type(prev['fitness'][0])))
+                print(prev['fitness'], type(prev['fitness'][0]))
                 print(f"Generation {i} best subject:", prev.iloc[prev['fitness'].idxmax()])
                 feval(prev.iloc[prev['fitness'].idxmax()]['search'], show=True)
 
