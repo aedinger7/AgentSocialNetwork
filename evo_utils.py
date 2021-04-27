@@ -7,15 +7,12 @@ _RUN_DURATION = 50
 _BELIEFS_SIZE = 20
 _SOCIAL_SIZE = 20
 
-# def run(params, run_duration=_RUN_DURATION):
-#     net_size = 2
+"""
+Includes various functions for running evolutions on social_net objects. Note that the evolution occurs on populations of social_net objects,
+not on populations of agents.
+"""
     
-#     # set up network
-#     network = social_net()
-
-#     return np.asarray(outputs)
-    
-def feval(params, run_duration=_RUN_DURATION, show=False):
+def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0):
     # set up network
     print(params)
     network = social_net(size=_SOCIAL_SIZE, beliefs_size=_BELIEFS_SIZE, rationality=params[0], pressure=params[1], tolerance=params[2], a=params[3])
@@ -29,9 +26,8 @@ def feval(params, run_duration=_RUN_DURATION, show=False):
         print(f"rationality={params[0]}, pressure={params[1]}, tolerance={params[2]}, a={params[3]}")
         compare_clustering(network.I)
         # network.agent_connections()
-
         
-    return 1- network.social_clustering()
+    return 1- network.social_clustering(pruning_threshold=pruning_threshold)
 
 # def plot(outputs, step_size=_STEP_SIZE):
 #     run_duration = transient_duration + eval_duration
@@ -51,7 +47,7 @@ def init_pop(pop_size):
         pop.iloc[i]["fitness"] = feval(pop.iloc[i]["search"])
     return(pop)
 
-def next_gen(prev, elites=5, xover="random", mutation_rate=.1, run_duration=_RUN_DURATION):
+def next_gen(prev, elites=5, xover="random", mutation_rate=.1, run_duration=_RUN_DURATION, pruning_threshold=0):
     pop = pd.DataFrame(index=pd.RangeIndex(start=0, stop=len(prev), name="individual"), columns=["search", "fitness"])
     prev.sort_values("fitness", ascending=False, inplace=True)
     prev.reset_index(drop=True, inplace=True)
@@ -81,19 +77,13 @@ def next_gen(prev, elites=5, xover="random", mutation_rate=.1, run_duration=_RUN
         pop.loc[i]["search"] = child
     
     for i in range(len(pop)):
-        # try:  
-        #     print(i)
         if not pop.iloc[i]["fitness"]:
-            pop.iloc[i]["fitness"] = feval(pop.iloc[i]["search"], run_duration=run_duration)
-        # except Exception as e: 
-        #     print(e)
-        #     params = pop.iloc[i]['search']
-        #     print(f"Error occurred with parameter set: {params}")
+            pop.iloc[i]["fitness"] = feval(pop.iloc[i]["search"], run_duration=run_duration, pruning_threshold=pruning_threshold)
 
     print("fin: ", pop)
     return pop
 
-def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="uniform", run_duration=_RUN_DURATION, show=True, save=True):
+def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="uniform", run_duration=_RUN_DURATION, show=True, save=True, pruning_threshold=0):
     print(f"Evolving: pop size = {pop_size} for {generations} generations")
     prev = init_pop(pop_size)
 
@@ -104,7 +94,7 @@ def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="unif
             evos.loc[i]["mean"] = prev["fitness"].mean()
 #             mutation_rate=max(2-evos.loc[i]["best"]*2000,.1)
             mutation_rate=2
-            prev = next_gen(prev, elites=elites, mutation_rate=mutation_rate, run_duration=run_duration)
+            prev = next_gen(prev, elites=elites, mutation_rate=mutation_rate, run_duration=run_duration, pruning_threshold=pruning_threshold)
             print("Gen: ", i, "\tMax: ", evos.loc[i]["best"], "\tMean: ", evos.loc[i]["mean"])
             
 
@@ -113,10 +103,8 @@ def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="unif
                     prev.to_csv(f"evo_run_gen{i}.csv")
                 if show:
                     print(f"Generation {i} best subject:", prev.iloc[pd.to_numeric(prev.fitness).idxmax()])
-                    feval(prev.iloc[pd.to_numeric(prev.fitness).idxmax()]['search'], show=True)
+                    feval(prev.iloc[pd.to_numeric(prev.fitness).idxmax()]['search'], show=True, pruning_threshold=0.1)
 
-            
-            
 #     if mutation == "non-uniform":
 #         for i in range(0, generations):
 #             evos.loc[i]["best"] = prev["fitness"].max()
@@ -127,8 +115,6 @@ def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="unif
 #                    
 #             mutation_rate = 0.15*((256 - evos.loc[i]["mean"])/256)**2
 #             prev = next_gen(prev, elites=elites, xover = xover, mutation_rate = mutation_rate)
-            
-            
             
     plt.plot(evos)
     plt.show()

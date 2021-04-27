@@ -1,9 +1,12 @@
+# pylint: disable=unused-variable
+
 import matplotlib.pyplot as plt
 import networkx as nx
 """
 Includes various functions for evaluating and manipulating network properties
 """
-# Display network and clustering before and after pruning using networkx.draw_networkx and matplotlib
+# Display network and clustering coefficients before and after pruning using networkx.draw_networkx and matplotlib
+# Used to evaluate effect of pruning on clustering coefficient and network structure
 def compare_clustering(G):
     figure = plt.figure(figsize=(50,20))
 
@@ -19,6 +22,7 @@ def compare_clustering(G):
     nx.draw_networkx(prune_graph(G, type='threshold', threshold=.1), pos=spring_pos)
     ax2.set_title('Pruned Social Network: Clustering={:0.2f}'.format(gc), fontsize=32)
 
+
 # Vertex strength metric from Barrat et al 2004
 def vertex_strength(G, node):
     s = 0
@@ -30,6 +34,7 @@ def vertex_strength(G, node):
 
 
 # Local clustering coefficient from Barrat et al 2004
+# Calculates clustering around node in graph G
 def local_clustering(G, node):
     deg = 0
     for (u,v) in G.edges(node):
@@ -52,6 +57,8 @@ def local_clustering(G, node):
 
 
 # Global clustering coefficient from Barrat et al 2004
+# Average clustering over all nodes in graph G
+# pruning_threshold - int: if >0, removes all edges under threshold before calculating clustering
 def global_clustering(G, pruning_threshold=0):
     if pruning_threshold>0:
         G=prune_graph(G, threshold=pruning_threshold)
@@ -63,6 +70,8 @@ def global_clustering(G, pruning_threshold=0):
 
 
 # Remove edges from G with weight below threshold weight of all edges in graph
+# type - str: 'threshold' to specify value, 'mean' to remove nodes beneath mean edge weight of graph
+# inplace - boolean: True directly modifies the given graph objecy, False makes and returns a copy of the graph
 def prune_graph(G, type='threshold', threshold=0.1, inplace=False):
     if type=='mean':
         weights = [G.edges()[edge]['weight'] for edge in G.edges]
@@ -80,6 +89,7 @@ def prune_graph(G, type='threshold', threshold=0.1, inplace=False):
 
 # Network coherence measure from Rodriguez et al
 # Counts number of coherent - noncoherent triples, doesn't count incomplete triples
+# Weighted - boolean: If true, takes edge weights into account. If False, only considers negative or positive values
 def network_coherence(G, weighted=False):
     e = 0
     count = 0
@@ -101,7 +111,7 @@ def network_coherence(G, weighted=False):
     else:
         return False
 
-# Automatically traverse network, flipping edges to create a completely coherent network
+# Automatically traverse network G, flipping edges to create a completely coherent network
 def coherify(G):
     for j in range(len(G)):
         for k in range(j+1,len(G)):

@@ -1,3 +1,4 @@
+# pylint: disable=unused-variable
 import networkx as nx
 import numpy as np
 import scipy.special
@@ -44,12 +45,12 @@ class social_net:
         self.__update_edges()
 
 
-    def social_clustering(self, pruned=True):
-        return global_clustering(self.I, pruned)
+    def social_clustering(self, pruning_threshold=0):
+        return global_clustering(self.I, pruning_threshold=pruning_threshold)
 
     
-    def belief_clustering(self):
-        return global_clustering(self.P)
+    def belief_clustering(self, pruning_threshold=0):
+        return global_clustering(self.P, pruning_threshold=pruning_threshold)
         
     
     def agent_coherence(self):
