@@ -12,7 +12,7 @@ Includes various functions for running evolutions on social_net objects. Note th
 not on populations of agents.
 """
     
-def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0):
+def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0, eval="clustering"):
     # set up network
     print(params)
     network = social_net(size=_SOCIAL_SIZE, beliefs_size=_BELIEFS_SIZE, rationality=params[0], pressure=params[1], tolerance=params[2], a=params[3])
@@ -26,8 +26,9 @@ def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0):
         print(f"rationality={params[0]}, pressure={params[1]}, tolerance={params[2]}, a={params[3]}")
         compare_clustering(network.I)
         # network.agent_connections()
-        
-    return 1- network.social_clustering(pruning_threshold=pruning_threshold)
+
+    if eval=="clustering":
+        return 1- network.social_clustering(pruning_threshold=pruning_threshold)
 
 # def plot(outputs, step_size=_STEP_SIZE):
 #     run_duration = transient_duration + eval_duration
@@ -47,7 +48,7 @@ def init_pop(pop_size):
         pop.iloc[i]["fitness"] = feval(pop.iloc[i]["search"])
     return(pop)
 
-def next_gen(prev, elites=5, xover="random", mutation_rate=.1, run_duration=_RUN_DURATION, pruning_threshold=0):
+def next_gen(prev, elites=5, xover="random", mutation_rate=.1, run_duration=_RUN_DURATION, pruning_threshold=0, eval="clustering"):
     pop = pd.DataFrame(index=pd.RangeIndex(start=0, stop=len(prev), name="individual"), columns=["search", "fitness"])
     prev.sort_values("fitness", ascending=False, inplace=True)
     prev.reset_index(drop=True, inplace=True)
@@ -78,12 +79,12 @@ def next_gen(prev, elites=5, xover="random", mutation_rate=.1, run_duration=_RUN
     
     for i in range(len(pop)):
         if not pop.iloc[i]["fitness"]:
-            pop.iloc[i]["fitness"] = feval(pop.iloc[i]["search"], run_duration=run_duration, pruning_threshold=pruning_threshold)
+            pop.iloc[i]["fitness"] = feval(pop.iloc[i]["search"], run_duration=run_duration, pruning_threshold=pruning_threshold, eval=eval)
 
     print("fin: ", pop)
     return pop
 
-def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="uniform", run_duration=_RUN_DURATION, show=True, save=True, pruning_threshold=0):
+def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="uniform", run_duration=_RUN_DURATION, show=True, save=True, pruning_threshold=0, eval="clustering"):
     print(f"Evolving: pop size = {pop_size} for {generations} generations")
     prev = init_pop(pop_size)
 
@@ -94,16 +95,16 @@ def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="unif
             evos.loc[i]["mean"] = prev["fitness"].mean()
 #             mutation_rate=max(2-evos.loc[i]["best"]*2000,.1)
             mutation_rate=2
-            prev = next_gen(prev, elites=elites, mutation_rate=mutation_rate, run_duration=run_duration, pruning_threshold=pruning_threshold)
+            prev = next_gen(prev, elites=elites, mutation_rate=mutation_rate, run_duration=run_duration, pruning_threshold=pruning_threshold, eval=eval)
             print("Gen: ", i, "\tMax: ", evos.loc[i]["best"], "\tMean: ", evos.loc[i]["mean"])
             
 
-            if(i%5) == 0:
+            if(i%5) == 0 or i==generations-1:
                 if save:
                     prev.to_csv(f"evo_run_gen{i}.csv")
                 if show:
                     print(f"Generation {i} best subject:", prev.iloc[pd.to_numeric(prev.fitness).idxmax()])
-                    feval(prev.iloc[pd.to_numeric(prev.fitness).idxmax()]['search'], show=True, pruning_threshold=0.1)
+                    feval(prev.iloc[pd.to_numeric(prev.fitness).idxmax()]['search'], show=True, pruning_threshold=pruning_threshold, eval=eval)
 
 #     if mutation == "non-uniform":
 #         for i in range(0, generations):
@@ -119,5 +120,7 @@ def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="unif
     plt.plot(evos)
     plt.show()
     print(evos)
+
+    evos.to_csv(f"evo_{run_duration}_{eval}_{pruning_threshold}.csv")
 
     return prev
