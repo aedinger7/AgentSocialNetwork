@@ -5,9 +5,8 @@ Includes various functions for evaluating and manipulating network properties
 # Vertex strength metric from Barrat et al 2004
 def vertex_strength(G, node):
     s = 0
-    for i in range(len(G)):
-        if i != node and (G.edges[node,i]):
-            s+=G.edges[node,i]['weight']
+    for (u,v) in G.edges(node):
+        s+=G.edges[u,v]['weight']
         
     return s
 
@@ -15,22 +14,29 @@ def vertex_strength(G, node):
 # Local clustering coefficient from Barrat et al 2004
 def local_clustering(G, node):
     deg = 0
-    for j in range(len(G)):
-        if j!=node and G.edges[j,node]: 
+    for (u,v) in G.edges(node):
+        if G.edges[u,v] != 0:
             deg += 1
-    n = 1/(vertex_strength(G,node)*(deg))
-    s = 0
-    for j in range(len(G)):
-        for h in range(len(G)):
-            if j!=h and j!=node and h!=node:
-                if (G.edges[j,h]) and (G.edges[node,j]) and (G.edges[node,h]):   
-                    s+=(G.edges[node,j]['weight'] + G.edges[node,h]['weight'])/2
+
+    s = vertex_strength(G,node)
+    if s==0 or deg-1==0:
+        return 1
+
+    n = 1/(s*(deg-1))
+    weights = 0
+    for (u,v) in G.edges(node):
+        for (x,y) in G.edges(node):
+            if (u,v)!=(x,y) and G.has_edge(v, y):
+                if G.edges[u,v]!=0 and G.edges[x,y]!=0 and G.edges[v,y]!=0:
+                    weights+=(G.edges[u,v]['weight'] + G.edges[x,y]['weight'])/2
                 
-    return n*s
+    return n*weights
 
 
 # Global clustering coefficient from Barrat et al 2004
-def global_clustering(G):
+def global_clustering(G, pruned=True):
+    if pruned:
+        G=prune_graph(G)
     total = 0 
     for v in range(len(G)):
         total+=local_clustering(G,v)
@@ -38,16 +44,18 @@ def global_clustering(G):
     return total/len(G)
 
 
-# Remove edges with weight below mean weight of all edges in graph
-def prune_graph(G):
-    weights = [G.edges()[edge]['weight'] for edge in G.edges]
-    mean_weight = sum(weights)/len(weights)
-
-    print(len(G.edges))
+# Remove edges from G with weight below threshold weight of all edges in graph
+def prune_graph(G, type='threshold', threshold=0.2, inplace=False):
+    if type=='mean':
+        weights = [G.edges()[edge]['weight'] for edge in G.edges]
+        threshold = sum(weights)/len(weights)
+    
+    if not inplace:
+        G=G.copy()
 
     for (u, v) in G.edges():
-            if G.edges[u,v]['weight'] < mean_weight:
-                G.remove_edge(u,v)
+        if G.edges[u,v]['weight'] < threshold:
+            G.remove_edge(u,v)
                 
     return(G)
 

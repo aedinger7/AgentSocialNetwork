@@ -43,8 +43,8 @@ class social_net:
         self.__update_edges()
 
 
-    def social_clustering(self):
-        return global_clustering(self.I)
+    def social_clustering(self, pruned=True):
+        return global_clustering(self.I, pruned)
 
     
     def belief_clustering(self):
