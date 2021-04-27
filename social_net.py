@@ -16,6 +16,7 @@ class social_net:
     # a: float (0, 1) - rate of change in social preference for another agent with which it interacts
     # b: float (0, 1) - rate of decay in social preference for all other agents following an interaction with a specific agent
     # (b is currently set to be proportional to a)
+    # convention for a, b as in Gelardi et al 2021
     def __init__(self, size, beliefs_size, coherent=False, rationality=1, pressure=0, tolerance=3, a=0.5, b=0.1, choice_type="both"):
         self.size = size
         self.agents = []

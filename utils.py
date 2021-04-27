@@ -1,12 +1,30 @@
+import matplotlib.pyplot as plt
+import networkx as nx
 """
 Includes various functions for evaluating and manipulating network properties
 """
+# Display network and clustering before and after pruning using networkx.draw_networkx and matplotlib
+def compare_clustering(G):
+    figure = plt.figure(figsize=(50,20))
+
+    spring_pos = nx.spring_layout(G)
+
+    gc= global_clustering(G)                           
+    ax1 = plt.subplot(121)
+    nx.draw_networkx(G, pos=spring_pos)
+    ax1.set_title('Full Social Network: Clustering={:0.2f}'.format(gc), fontsize=32)
+
+    gc= global_clustering(G, pruning_threshold=0.1)  
+    ax2 = plt.subplot(122)
+    nx.draw_networkx(prune_graph(G, type='threshold', threshold=.1), pos=spring_pos)
+    ax2.set_title('Pruned Social Network: Clustering={:0.2f}'.format(gc), fontsize=32)
 
 # Vertex strength metric from Barrat et al 2004
 def vertex_strength(G, node):
     s = 0
     for (u,v) in G.edges(node):
-        s+=G.edges[u,v]['weight']
+        if(G.edges[u,v]):
+            s+=G.edges[u,v]['weight']
         
     return s
 
@@ -34,9 +52,9 @@ def local_clustering(G, node):
 
 
 # Global clustering coefficient from Barrat et al 2004
-def global_clustering(G, pruned=True):
-    if pruned:
-        G=prune_graph(G)
+def global_clustering(G, pruning_threshold=0):
+    if pruning_threshold>0:
+        G=prune_graph(G, threshold=pruning_threshold)
     total = 0 
     for v in range(len(G)):
         total+=local_clustering(G,v)
@@ -45,7 +63,7 @@ def global_clustering(G, pruned=True):
 
 
 # Remove edges from G with weight below threshold weight of all edges in graph
-def prune_graph(G, type='threshold', threshold=0.2, inplace=False):
+def prune_graph(G, type='threshold', threshold=0.1, inplace=False):
     if type=='mean':
         weights = [G.edges()[edge]['weight'] for edge in G.edges]
         threshold = sum(weights)/len(weights)
