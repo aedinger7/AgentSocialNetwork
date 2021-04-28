@@ -12,7 +12,7 @@ Includes various functions for running evolutions on social_net objects. Note th
 not on populations of agents.
 """
     
-def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0, eval="clustering", maximize=True):
+def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0, eval="clustering"):
     # set up network
     print(params)
     network = social_net(size=_SOCIAL_SIZE, beliefs_size=_BELIEFS_SIZE, rationality=params[0], pressure=params[1], tolerance=params[2], a=params[3])
@@ -31,7 +31,10 @@ def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0, e
         return max(0, 1-network.social_clustering(pruning_threshold=pruning_threshold))
 
     if eval=="modularity":
-        return max(0, network.social_modularity(pruning_threshold=pruning_threshold))
+        try:
+            return max(0, network.social_modularity(pruning_threshold=pruning_threshold))
+        except:
+            return 0
 
 # def plot(outputs, step_size=_STEP_SIZE):
 #     run_duration = transient_duration + eval_duration
