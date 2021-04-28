@@ -12,7 +12,7 @@ Includes various functions for running evolutions on social_net objects. Note th
 not on populations of agents.
 """
     
-def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0, eval="clustering"):
+def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0, eval="clustering", maximize=True):
     # set up network
     print(params)
     network = social_net(size=_SOCIAL_SIZE, beliefs_size=_BELIEFS_SIZE, rationality=params[0], pressure=params[1], tolerance=params[2], a=params[3])
@@ -30,6 +30,9 @@ def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0, e
     if eval=="clustering":
         return max(0, 1-network.social_clustering(pruning_threshold=pruning_threshold))
 
+    if eval=="modularity":
+        return max(0, network.social_modularity(pruning_threshold=pruning_threshold))
+
 # def plot(outputs, step_size=_STEP_SIZE):
 #     run_duration = transient_duration + eval_duration
 #     # plot oscillator output
@@ -40,12 +43,12 @@ def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0, e
 #     plt.show()
     
 
-def init_pop(pop_size):
+def init_pop(pop_size, pruning_threshold=0, eval="clustering"):
     print("Initializing population... ")
     pop = pd.DataFrame(index=pd.RangeIndex(start=0, stop=pop_size, name="individual"), columns=["search", "fitness"])
     for i in range(pop_size):
         pop.iloc[i]["search"] = list(np.random.uniform(low=0, high=1, size=4))
-        pop.iloc[i]["fitness"] = feval(pop.iloc[i]["search"])
+        pop.iloc[i]["fitness"] = feval(pop.iloc[i]["search"], pruning_threshold=pruning_threshold, eval=eval)
     return(pop)
 
 def next_gen(prev, elites=5, xover="random", mutation_rate=.1, run_duration=_RUN_DURATION, pruning_threshold=0, eval="clustering"):
@@ -85,7 +88,7 @@ def next_gen(prev, elites=5, xover="random", mutation_rate=.1, run_duration=_RUN
 
 def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="uniform", run_duration=_RUN_DURATION, show=True, save=True, pruning_threshold=0, eval="clustering"):
     print(f"Evolving: pop size = {pop_size} for {generations} generations")
-    prev = init_pop(pop_size)
+    prev = init_pop(pop_size, pruning_threshold=pruning_threshold, eval=eval)
 
     evos = pd.DataFrame(index=pd.RangeIndex(start=0, stop=generations, name="generation"), columns=["best", "mean"])
     if mutation == "uniform":

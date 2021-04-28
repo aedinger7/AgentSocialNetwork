@@ -6,7 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import random
 from agent import agent
-from utils import global_clustering
+from utils import global_clustering, modularity
 
 class social_net:
     # size: int - number of agents in social net
@@ -51,6 +51,14 @@ class social_net:
     
     def belief_clustering(self, pruning_threshold=0):
         return global_clustering(self.P, pruning_threshold=pruning_threshold)
+
+
+    def social_modularity(self, pruning_threshold=0):
+        return modularity(self.I, pruning_threshold=pruning_threshold)
+
+    
+    def belief_modularity(self, pruning_threshold=0):
+        return modularity(self.P, pruning_threshold=pruning_threshold)
         
     
     def agent_coherence(self):

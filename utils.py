@@ -1,10 +1,13 @@
 # pylint: disable=unused-variable
-
 import matplotlib.pyplot as plt
 import networkx as nx
+import community as community_louvain
+import networkx.algorithms.community as nx_comm
+
 """
 Includes various functions for evaluating and manipulating network properties
 """
+
 # Display network and clustering coefficients before and after pruning using networkx.draw_networkx and matplotlib
 # Used to evaluate effect of pruning on clustering coefficient and network structure
 def compare_clustering(G, pruning_threshold=0.1):
@@ -67,6 +70,16 @@ def global_clustering(G, pruning_threshold=0):
         total+=local_clustering(G,v)
     
     return total/len(G)
+
+
+# Community detection algorithm implementation from Clauset et al 2004
+# pruning_threshold - int: removes all edges under threshold before calculating clustering
+def modularity(G, pruning_threshold=0):
+    if pruning_threshold>0:
+        G=prune_graph(G, threshold=pruning_threshold)
+    partition = community_louvain.best_partition(prune_graph(G, threshold=.1))
+    partition_sets = [{x for x in partition.keys() if partition[x] == i} for i in set(partition.values())]
+    return nx_comm.modularity(G, partition_sets)
 
 
 # Remove edges from G with weight below threshold weight of all edges in graph
