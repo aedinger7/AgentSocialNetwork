@@ -7,7 +7,7 @@ Includes various functions for evaluating and manipulating network properties
 """
 # Display network and clustering coefficients before and after pruning using networkx.draw_networkx and matplotlib
 # Used to evaluate effect of pruning on clustering coefficient and network structure
-def compare_clustering(G):
+def compare_clustering(G, pruning_threshold=0.1):
     figure = plt.figure(figsize=(50,20))
 
     spring_pos = nx.spring_layout(G)
@@ -17,7 +17,7 @@ def compare_clustering(G):
     nx.draw_networkx(G, pos=spring_pos)
     ax1.set_title('Full Social Network: Clustering={:0.2f}'.format(gc), fontsize=32)
 
-    gc= global_clustering(G, pruning_threshold=0.1)  
+    gc= global_clustering(G, pruning_threshold=pruning_threshold)  
     ax2 = plt.subplot(122)
     nx.draw_networkx(prune_graph(G, type='threshold', threshold=.1), pos=spring_pos)
     ax2.set_title('Pruned Social Network: Clustering={:0.2f}'.format(gc), fontsize=32)
@@ -71,7 +71,7 @@ def global_clustering(G, pruning_threshold=0):
 
 # Remove edges from G with weight below threshold weight of all edges in graph
 # type - str: 'threshold' to specify value, 'mean' to remove nodes beneath mean edge weight of graph
-# inplace - boolean: True directly modifies the given graph objecy, False makes and returns a copy of the graph
+# inplace - boolean: True directly modifies the given graph object, False makes and returns a copy of the graph
 def prune_graph(G, type='threshold', threshold=0.1, inplace=False):
     if type=='mean':
         weights = [G.edges()[edge]['weight'] for edge in G.edges]

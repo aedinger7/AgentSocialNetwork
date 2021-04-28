@@ -24,7 +24,7 @@ def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0, e
     
     if show:
         print(f"rationality={params[0]}, pressure={params[1]}, tolerance={params[2]}, a={params[3]}")
-        compare_clustering(network.I)
+        compare_clustering(network.I, pruning_threshold=pruning_threshold)
         # network.agent_connections()
 
     if eval=="clustering":
@@ -55,7 +55,7 @@ def next_gen(prev, elites=5, xover="random", mutation_rate=.1, run_duration=_RUN
 
     for i in range(elites):
         pop.iloc[i] = prev.iloc[i].copy()
-        print("elite ", i,": ", pop)
+        # print("elite ", i,": ", pop)
         
     for i in range(elites, len(pop)):
         x = prev.sample(weights=prev["fitness"]).iloc[0]["search"].copy()
@@ -74,12 +74,11 @@ def next_gen(prev, elites=5, xover="random", mutation_rate=.1, run_duration=_RUN
                     param = np.random.normal(child[j], scale=mutation_rate)
                 child[j] = param
         
-        print("child ", i, ":", child)
+        # print("child ", i, ":", child)
         pop.loc[i]["search"] = child
     
     for i in range(len(pop)):
-        if not pop.iloc[i]["fitness"]:
-            pop.iloc[i]["fitness"] = feval(pop.iloc[i]["search"], run_duration=run_duration, pruning_threshold=pruning_threshold, eval=eval)
+        pop.iloc[i]["fitness"] = feval(pop.iloc[i]["search"], run_duration=run_duration, pruning_threshold=pruning_threshold, eval=eval)
 
     print("fin: ", pop)
     return pop
@@ -117,6 +116,7 @@ def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="unif
 #             mutation_rate = 0.15*((256 - evos.loc[i]["mean"])/256)**2
 #             prev = next_gen(prev, elites=elites, xover = xover, mutation_rate = mutation_rate)
             
+    plt.figure(figsize=(50,20))
     plt.plot(evos)
     plt.show()
     print(evos)
