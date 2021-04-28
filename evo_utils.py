@@ -8,11 +8,28 @@ _BELIEFS_SIZE = 20
 _SOCIAL_SIZE = 20
 
 """
-Includes various functions for running evolutions on social_net objects. Note that the evolution occurs on populations of social_net objects,
-not on populations of agents.
+Includes various functions for running evolutions on social_net objects, representing networks of social agents.
 """
-    
+
+# 
+# params - list of 
+# run_duration - int: 
+# show - boolean: 
+# pruning_threshold - 
 def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0, eval="clustering"):
+    """Function for evaluating evolutions of social_nets.
+
+    Args:
+        params (list of floats): Parameters defining the social network to be evaluated
+        run_duration ([type], optional): Defines run length for evaluation of a single network. Defaults to _RUN_DURATION.
+        show (bool, optional): If True, display parameters and graphs for comparing performance under different evaluation techniques. Defaults to False.
+        pruning_threshold (float in [0,1], optional): float in [0,1]: Determines whether networks are pruned of edges below the specified weight threshold before evaluation. May improve performance of some eval functions. Defaults to 0.
+        eval (str, optional): Determines which evaluation function to use. Currently supports "clustering" and "modularity". Defaults to "clustering".
+
+
+    Returns:
+        float in [0,1]: Evaluation score of network under specified evaluation method
+    """
     # set up network
     print(params)
     network = social_net(size=_SOCIAL_SIZE, beliefs_size=_BELIEFS_SIZE, rationality=params[0], pressure=params[1], tolerance=params[2], a=params[3])
@@ -47,6 +64,17 @@ def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0, e
     
 
 def init_pop(pop_size, pruning_threshold=0, eval="clustering"):
+    """Helper function for evolve function. Creates initial population to be evolved. 
+
+    Args:
+        pop_size (int): size of population to be evolved
+        pruning_threshold (int, optional): Pruning parameter for network evaluations. See feval function. Defaults to 0.
+        eval (str, optional): Determines which evaluation function to use. Currently supports "clustering" and "modularity". Defaults to "clustering".
+    Returns:
+        [DataFrame]: contains parameter sets and fitness of initial population
+
+    """
+
     print("Initializing population... ")
     pop = pd.DataFrame(index=pd.RangeIndex(start=0, stop=pop_size, name="individual"), columns=["search", "fitness"])
     for i in range(pop_size):
@@ -54,7 +82,23 @@ def init_pop(pop_size, pruning_threshold=0, eval="clustering"):
         pop.iloc[i]["fitness"] = feval(pop.iloc[i]["search"], pruning_threshold=pruning_threshold, eval=eval)
     return(pop)
 
+
 def next_gen(prev, elites=5, xover="random", mutation_rate=.1, run_duration=_RUN_DURATION, pruning_threshold=0, eval="clustering"):
+    """ Helper function for evolve. Takes a generation of the population and generates the following generation according to specified 
+        parameters.
+
+    Args:
+        prev (DataFrame): Previous generation.
+        elites (int, optional): Specifies the number of best agents from previous generation to carry through. Defaults to 5.
+        xover (str, optional): Determines production of children for next generation. If "random", each child takes parameters from two parents and randomly selects parameters from each.  Defaults to "random".
+        mutation_rate (float, optional): [description]. Defaults to .1.
+        run_duration ([type], optional): Defines run length for evaluation of a single network. Defaults to _RUN_DURATION.
+        pruning_threshold (int, optional): # pruning_threshold - float in [0,1]: Determines whether networks are pruned of edges below the specified weight threshold before evaluation. May improve performance of some eval functions. Defaults to 0.
+        eval (str, optional): Determines which evaluation function to use. Currently supports "clustering" and "modularity". Defaults to "clustering".
+
+    Returns:
+        [DataFrame]: contains parameter sets and fitness of new generation.
+    """
     pop = pd.DataFrame(index=pd.RangeIndex(start=0, stop=len(prev), name="individual"), columns=["search", "fitness"])
     prev.sort_values("fitness", ascending=False, inplace=True)
     prev.reset_index(drop=True, inplace=True)
@@ -89,7 +133,22 @@ def next_gen(prev, elites=5, xover="random", mutation_rate=.1, run_duration=_RUN
     print("fin: ", pop)
     return pop
 
-def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="uniform", run_duration=_RUN_DURATION, show=True, save=True, pruning_threshold=0, eval="clustering"):
+def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="uniform", run_duration=_RUN_DURATION, show=False, save=True, pruning_threshold=0, eval="clustering"):
+    """Carries out evolution process with parameters for specifying population, evolution, and evaluation characteristics.
+
+    Args:
+        generations (int, optional): Number of generations to evolve. Defaults to 20.
+        pop_size (int, optional): Size of population for evolution. Defaults to 10.
+        elites (int, optional): Specifies the number of best agents from previous generation to carry through. Defaults to 5.
+        xover (str, optional): Determines production of children for next generation. If "random", each child takes parameters from two parents and randomly selects parameters from each.  Defaults to "random".
+        mutation_rate (float, optional): [description]. Defaults to .1.
+        run_duration ([type], optional): Defines run length for evaluation of a single network. Defaults to _RUN_DURATION.
+        pruning_threshold (int, optional): # pruning_threshold - float in [0,1]: Determines whether networks are pruned of edges below the specified weight threshold before evaluation. May improve performance of some eval functions. Defaults to 0.
+        show (bool, optional): Display results and population characteristics every fifth generation. Defaults to True.
+        save (bool, optional): Saves .csv files of every fifth generation. Primarily used for testing. Defaults to False.
+        eval (str, optional): Passed to feval. Determines which evaluation function to use. Currently supports "clustering" and "modularity". Defaults to "clustering".
+        pruning_threshold (int, optional): Passed to feval. Determines whether networks should be pruned before evaluation. May improve evaluation accuracy. Defaults to 0.
+    """
     print(f"Evolving: pop size = {pop_size} for {generations} generations")
     prev = init_pop(pop_size, pruning_threshold=pruning_threshold, eval=eval)
 
