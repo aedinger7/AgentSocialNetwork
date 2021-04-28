@@ -8,17 +8,26 @@ import random
 from agent import agent
 from utils import global_clustering, modularity
 
+"""
+Defines an object representing a network of social agents.
+"""
+
 class social_net:
-    # size: int - number of agents in social net
-    # beliefs size: int - number of nodes in agent belief networks
-    # rationality: float [0,1] - preference of agents for improvement to coherence in belief networks
-    # pressure: float [0,1] - rate of agents to accept changes to beliefs that may not improve belief coherence
-    # tolerance: float (0, 1) - probability of ending interaction after unsuccessful actions occur
-    # a: float (0, 1) - rate of change in social preference for another agent with which it interacts
-    # b: float (0, 1) - rate of decay in social preference for all other agents following an interaction with a specific agent
-    # (b is currently set to be proportional to a)
-    # convention for a, b as in Gelardi et al 2021
+
     def __init__(self, size, beliefs_size, coherent=False, rationality=1, pressure=0, tolerance=3, a=0.5, b=0.1, choice_type="both"):
+        """Constructor function for social_net objects.
+
+        Args:
+            size ([type]): Number of agents in social network
+            beliefs_size ([type]): Number of nodes in agent belief networks
+            coherent (bool, optional): If true, all agents in network begin with completely coherent internal belief set. Defaults to False.
+            rationality (int, optional): preference of agents for improvement to coherence in belief networks. Defaults to 1.
+            pressure (int, optional): rate of agents to accept changes to beliefs that may not improve belief coherence. Defaults to 0.
+            tolerance (int, optional): probability of ending interaction after unsuccessful actions occur. Defaults to 3.
+            a (float, optional): Rate of change in social preference of agent for another agent with which it interacts. Convention for a, b as in Gelardi et al 2021. Defaults to 0.5.
+            b (float, optional): Rate of decay in social preference of agent for all other agents following an interaction with a specific agent. Convention for a, b as in Gelardi et al 2021. Defaults to 0.1.
+            choice_type (str, optional): Parameter for determining how agents in the network select other agents for interaction. If "both", uses a combination of beliefs and social interactions. Else, uses only beliefs. Defaults to "both".
+        """
         self.size = size
         self.agents = []
         self.rationality = rationality
