@@ -11,11 +11,6 @@ _SOCIAL_SIZE = 20
 Includes various functions for running evolutions on social_net objects, representing networks of social agents.
 """
 
-# 
-# params - list of 
-# run_duration - int: 
-# show - boolean: 
-# pruning_threshold - 
 def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0, eval="clustering"):
     """Function for evaluating evolutions of social_nets.
 
@@ -30,8 +25,6 @@ def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0, e
     Returns:
         float in [0,1]: Evaluation score of network under specified evaluation method
     """
-    # set up network
-    print(params)
     network = social_net(size=_SOCIAL_SIZE, beliefs_size=_BELIEFS_SIZE, rationality=params[0], pressure=params[1], tolerance=params[2], a=params[3])
 
     runs = 0
@@ -155,6 +148,7 @@ def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="unif
     evos = pd.DataFrame(index=pd.RangeIndex(start=0, stop=generations, name="generation"), columns=["best", "mean"])
     if mutation == "uniform":
         for i in range(0, generations):
+            print(f"Generation {i}")
             evos.loc[i]["best"] = prev["fitness"].max()
             evos.loc[i]["mean"] = prev["fitness"].mean()
 #             mutation_rate=max(2-evos.loc[i]["best"]*2000,.1)
