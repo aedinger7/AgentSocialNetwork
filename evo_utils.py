@@ -38,7 +38,7 @@ def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0, e
         # network.agent_connections()
 
     if eval=="clustering":
-        return max(0, 1-network.social_clustering(pruning_threshold=pruning_threshold))
+        return max(0, network.social_clustering(pruning_threshold=pruning_threshold))
 
     if eval=="modularity":
         try:
