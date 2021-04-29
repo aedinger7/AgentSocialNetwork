@@ -25,7 +25,7 @@ def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0, e
     Returns:
         float in [0,1]: Evaluation score of network under specified evaluation method
     """
-    network = social_net(size=_SOCIAL_SIZE, beliefs_size=_BELIEFS_SIZE, rationality=params[0], pressure=params[1], tolerance=params[2], a=params[3])
+    network = social_net(size=_SOCIAL_SIZE, beliefs_size=_BELIEFS_SIZE, rationality=params[0], pressure=params[1], tolerance=params[2], a=params[3], b=params[4])
 
     runs = 0
     while runs<run_duration:
@@ -71,7 +71,7 @@ def init_pop(pop_size, pruning_threshold=0, eval="clustering"):
     print("Initializing population... ")
     pop = pd.DataFrame(index=pd.RangeIndex(start=0, stop=pop_size, name="individual"), columns=["search", "fitness"])
     for i in range(pop_size):
-        pop.iloc[i]["search"] = list(np.random.uniform(low=0, high=1, size=4))
+        pop.iloc[i]["search"] = list(np.random.uniform(low=0, high=1, size=5))
         pop.iloc[i]["fitness"] = feval(pop.iloc[i]["search"], pruning_threshold=pruning_threshold, eval=eval)
     return(pop)
 
@@ -176,6 +176,10 @@ def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="unif
 #             prev = next_gen(prev, elites=elites, xover = xover, mutation_rate = mutation_rate)
             
     plt.figure(figsize=(50,20))
+    plt.xticks(fontsize=20)
+    plt.yticks(fontsize=20)
+    plt.xlabel('Generations', fontsize=26)
+    plt.ylabel('Fitness', fontsize=26)
     plt.plot(evos)
     plt.show()
     print(evos)
