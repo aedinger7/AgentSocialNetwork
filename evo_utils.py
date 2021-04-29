@@ -126,7 +126,7 @@ def next_gen(prev, elites=5, xover="random", mutation_rate=.1, run_duration=_RUN
     print("fin: ", pop)
     return pop
 
-def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="uniform", run_duration=_RUN_DURATION, show=False, save=True, pruning_threshold=0, eval="clustering"):
+def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="uniform", mutation_rate=0.05, run_duration=_RUN_DURATION, show=False, save=True, pruning_threshold=0, eval="clustering"):
     """Carries out evolution process with parameters for specifying population, evolution, and evaluation characteristics.
 
     Args:
@@ -134,7 +134,7 @@ def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="unif
         pop_size (int, optional): Size of population for evolution. Defaults to 10.
         elites (int, optional): Specifies the number of best agents from previous generation to carry through. Defaults to 5.
         xover (str, optional): Determines production of children for next generation. If "random", each child takes parameters from two parents and randomly selects parameters from each.  Defaults to "random".
-        mutation_rate (float, optional): [description]. Defaults to .1.
+        mutation_rate (float, optional): Passed to next_gen. Rate of change (mutation) for parameters from parent to child. Defaults to .1.
         run_duration ([type], optional): Defines run length for evaluation of a single network. Defaults to _RUN_DURATION.
         pruning_threshold (int, optional): # pruning_threshold - float in [0,1]: Determines whether networks are pruned of edges below the specified weight threshold before evaluation. May improve performance of some eval functions. Defaults to 0.
         show (bool, optional): Display results and population characteristics every fifth generation. Defaults to True.
@@ -152,9 +152,9 @@ def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="unif
             evos.loc[i]["best"] = prev["fitness"].max()
             evos.loc[i]["mean"] = prev["fitness"].mean()
 #             mutation_rate=max(2-evos.loc[i]["best"]*2000,.1)
-            mutation_rate=2
-            prev = next_gen(prev, elites=elites, mutation_rate=mutation_rate, run_duration=run_duration, pruning_threshold=pruning_threshold, eval=eval)
             print("Gen: ", i, "\tMax: ", evos.loc[i]["best"], "\tMean: ", evos.loc[i]["mean"])
+            prev = next_gen(prev, elites=elites, mutation_rate=mutation_rate, run_duration=run_duration, pruning_threshold=pruning_threshold, eval=eval)
+            
             
 
             if(i%5) == 0 or i==generations-1:

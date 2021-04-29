@@ -52,12 +52,13 @@ class agent:
         return G
     
     
+    # See utils.network_coherence
     def coherence(self):
         G = self.beliefs
         return network_coherence(G)
         
         
-    # Returns number of agreeing edges between networks G1 & G2
+    # Returns number of agreeing edges between networks self & other
     def agreement(self, other):
         d = 0
         count = 0
@@ -72,8 +73,7 @@ class agent:
             return False
         
         
-    # Compare a candidate edge weight with current edge weight in network, substitute weight if candidate edge 
-    #  improves network coherence
+    # Compare a candidate edge weight with current edge weight in network, substitute weight if candidate edge improves network coherence
     # Returns True if substitution occurs, False otherwise
     def substitute(self, j, k, w, rationality=1, pressure=0):
         G = self.beliefs.copy()
