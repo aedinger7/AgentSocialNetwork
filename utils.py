@@ -46,7 +46,7 @@ def local_clustering(G, node):
 
     s = vertex_strength(G,node)
     if s==0 or deg-1==0:
-        return 1
+        return 0
 
     n = 1/(s*(deg-1))
     weights = 0
