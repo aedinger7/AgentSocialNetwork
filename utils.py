@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import community as community_louvain
 import networkx.algorithms.community as nx_comm
+import matplotlib.cm as cm
 
 """
 Includes various functions for evaluating and manipulating network properties
@@ -11,22 +12,34 @@ Includes various functions for evaluating and manipulating network properties
 # Display network and clustering coefficients before and after pruning using networkx.draw_networkx and matplotlib
 # Used to evaluate effect of pruning on clustering coefficient and network structure
 def compare_clustering(G, pruning_threshold=0.1):
-    figure = plt.figure(figsize=(50,20))
+    # compute the best partition
+    partition = community_louvain.best_partition(G)
 
-    spring_pos = nx.spring_layout(G)
+    plt.figure(figsize=(50,20))
 
-    gc= global_clustering(G)                           
+    # draw the graph
+    pos = nx.spring_layout(G)
+    # color the nodes according to their partition
+    cmap = cm.get_cmap('viridis', max(partition.values()) + 1)
+    mod = modularity(G)
     ax1 = plt.subplot(121)
-    nx.draw_networkx(G, pos=spring_pos)
-    ax1.set_title('Full Social Network: Clustering={:0.2f}'.format(gc), fontsize=32)  
+    nx.draw_networkx_nodes(G, pos, partition.keys(), node_size=300,
+                        cmap=cmap, node_color=list(partition.values()))
+    nx.draw_networkx_edges(G, pos, alpha=0.5)
+    ax1.set_title('Full Social Network: Modularity={:0.2f}'.format(mod), fontsize=32)
 
-    gc= global_clustering(G, pruning_threshold=pruning_threshold)  
+
+    gc= global_clustering(G, pruning_threshold=pruning_threshold) 
     ax2 = plt.subplot(122)
-    nx.draw_networkx(prune_graph(G, type='threshold', threshold=.1), pos=spring_pos)
+    nx.draw_networkx_nodes(G, pos, partition.keys(), node_size=300,
+                        cmap=cmap, node_color=list(partition.values()))
+    nx.draw_networkx_edges(prune_graph(test.I, type='threshold', threshold=.1), pos, alpha=0.5)
     ax2.set_title('Pruned Social Network: Clustering={:0.2f}'.format(gc), fontsize=32)
 
+    plt.show()
 
-# Vertex strength metric from Barrat et al 2004
+
+# Vertex strength metric for given node from Barrat et al 2004
 def vertex_strength(G, node):
     s = 0
     for (u,v) in G.edges(node):
