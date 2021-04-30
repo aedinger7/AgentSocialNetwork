@@ -33,7 +33,7 @@ def compare_clustering(G, pruning_threshold=0.1):
     ax2 = plt.subplot(122)
     nx.draw_networkx_nodes(G, pos, partition.keys(), node_size=300,
                         cmap=cmap, node_color=list(partition.values()))
-    nx.draw_networkx_edges(prune_graph(test.I, type='threshold', threshold=.1), pos, alpha=0.5)
+    nx.draw_networkx_edges(prune_graph(G, type='threshold', threshold=.1), pos, alpha=0.5)
     ax2.set_title('Pruned Social Network: Clustering={:0.2f}'.format(gc), fontsize=32)
 
     plt.show()
