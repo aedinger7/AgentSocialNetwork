@@ -14,7 +14,7 @@ Defines an object representing a network of social agents.
 
 class social_net:
 
-    def __init__(self, size, beliefs_size, coherent=False, rationality=1, pressure=0, tolerance=3, a=0.5, b=0.1, choice_type="both"):
+    def __init__(self, size, beliefs_size, coherent=False, rationality=1, pressure=0, tolerance=0.7, a=0.5, b=0.1, choice_type="both"):
         """Constructor function for social_net objects.
 
         Args:
@@ -55,51 +55,102 @@ class social_net:
 
 
     def social_clustering(self, pruning_threshold=0):
+        """Global clustering coefficient from Barrat et al 2004. Average clustering over all nodes in social connectivity network.
+
+        Args:
+            pruning_threshold (int, optional): Prunes all edges in graph below given value before computing. Defaults to 0.
+
+        Returns:
+            float: Clustering coefficient
+        """
         return global_clustering(self.I, pruning_threshold=pruning_threshold)
 
     
     def belief_clustering(self, pruning_threshold=0):
+        """Global clustering coefficient from Barrat et al 2004. Average clustering over all nodes in agent agreement network.
+
+        Args:
+            pruning_threshold (int, optional): Prunes all edges in graph below given value before computing. Defaults to 0.
+
+        Returns:
+            float: Clustering coefficient
+        """
         return global_clustering(self.P, pruning_threshold=pruning_threshold)
 
 
     def social_modularity(self, pruning_threshold=0):
+        """Computes network modularity measure for social connectivity network with Louvain method from Blondel et al 2004 and implementation from Aynaud 2009.
+
+        Args:
+            pruning_threshold (int, optional): Prunes all edges in graph below given value before computing. Defaults to 0.
+
+        Returns:
+            float: Network modularity
+        """
         return modularity(self.I, pruning_threshold=pruning_threshold)
 
     
     def belief_modularity(self, pruning_threshold=0):
+        """Computes network modularity measure for agreement network with Louvain method from Blondel et al 2004 and implementation from Aynaud 2009.
+
+        Args:
+            pruning_threshold (int, optional): Prunes all edges in graph below given value before computing. Defaults to 0.
+
+        Returns:
+            float: Network modularity
+        """
         return modularity(self.P, pruning_threshold=pruning_threshold)
         
     
     def agent_coherence(self):
+        """Displays coherence of all agents in the network. See agent.coherence.
+        """
         for i, agent in enumerate(self.agents):
             print(i, agent.coherence())
     
     
     def agent_agreement(self):
+        """Displays pairwise agreement of all agents in network. See agent.agreement. Primarily used for testing.
+        """
         for edge in self.P.edges():
             print(edge, self.P.edges()[edge])
             
     
     def agent_interactions(self):
+        """Displays edge weights of social connectivity network. Primarily used for testing.
+        """
         for edge in self.I.edges():
             print(edge, self.I.edges()[edge])
             
     
     def agent_connections(self):
+        """Displays social connectivity and agent agreement values. Primarily used for testing.
+        """
         print('Edge', '\t', 'Belief Agreement', '\t\t', 'Social Preference')
         for edge in self.I.edges():
             print(edge, self.P.edges()[edge], '\t', self.I.edges()[edge])
             
     
     def __update_edges(self):
+        """Helper function. Updates edges in agent agreement network after changes in internal concept networks occur.
+        """
         for i, a in enumerate(self.agents):
             for j, b in enumerate(self.agents):
                 if i != j:
                     self.P.edges[(i,j)]['weight'] = a.agreement(b)
                     
     
-    # Chooses target of interaction for an agent as a function of social and belief network values
     def __interaction_choice(self, i):
+        """Chooses target of interaction for an agent as a function of social and belief network values. Object variable self.choice_type 
+        determines method for choosing, which may use agent agreement alone or agent agreement and social connectivity. Defaults to beliefs,
+        which was used for all testing of this project.
+
+        Args:
+            i (int): Agent in social network that will choose a target agent for interaction
+
+        Returns:
+            int: Chosen agent as target for interaction.
+        """
         probabilities = []
         other_agents = []
         for j in range(len(self.agents)):
@@ -115,6 +166,9 @@ class social_net:
         
         
     def interaction_event(self):
+        """Execute a series of interactions in the network, where each agent chooses a target agent for interaction, and updates
+        the social connectivity network accordingly.
+        """
         for i, agent in enumerate(self.agents):
             choice = self.__interaction_choice(i)
             other_agent = self.agents[choice]
