@@ -15,12 +15,12 @@ def compare_clustering(G, pruning_threshold=0.1):
 
     spring_pos = nx.spring_layout(G)
 
-    gc= 1-global_clustering(G)                           
+    gc= global_clustering(G)                           
     ax1 = plt.subplot(121)
     nx.draw_networkx(G, pos=spring_pos)
     ax1.set_title('Full Social Network: Clustering={:0.2f}'.format(gc), fontsize=32)  
 
-    gc= 1-global_clustering(G, pruning_threshold=pruning_threshold)  
+    gc= global_clustering(G, pruning_threshold=pruning_threshold)  
     ax2 = plt.subplot(122)
     nx.draw_networkx(prune_graph(G, type='threshold', threshold=.1), pos=spring_pos)
     ax2.set_title('Pruned Social Network: Clustering={:0.2f}'.format(gc), fontsize=32)

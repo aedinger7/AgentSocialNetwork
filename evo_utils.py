@@ -11,7 +11,7 @@ _SOCIAL_SIZE = 20
 Includes various functions for running evolutions on social_net objects, representing networks of social agents.
 """
 
-def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0, eval="clustering"):
+def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0, eval="clustering", social_net_size=_SOCIAL_SIZE):
     """Function for evaluating evolutions of social_nets.
 
     Args:
@@ -25,7 +25,7 @@ def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0, e
     Returns:
         float in [0,1]: Evaluation score of network under specified evaluation method
     """
-    network = social_net(size=_SOCIAL_SIZE, beliefs_size=_BELIEFS_SIZE, rationality=params[0], pressure=params[1], tolerance=params[2], a=params[3], b=params[4])
+    network = social_net(size=social_net_size, beliefs_size=_BELIEFS_SIZE, rationality=params[0], pressure=params[1], tolerance=params[2], a=params[3], b=params[4])
 
     runs = 0
     while runs<run_duration:
@@ -56,7 +56,7 @@ def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0, e
 #     plt.show()
     
 
-def init_pop(pop_size, pruning_threshold=0, eval="clustering"):
+def init_pop(pop_size, pruning_threshold=0, eval="clustering", social_net_size=_SOCIAL_SIZE):
     """Helper function for evolve function. Creates initial population to be evolved. 
 
     Args:
@@ -72,11 +72,11 @@ def init_pop(pop_size, pruning_threshold=0, eval="clustering"):
     pop = pd.DataFrame(index=pd.RangeIndex(start=0, stop=pop_size, name="individual"), columns=["search", "fitness"])
     for i in range(pop_size):
         pop.iloc[i]["search"] = list(np.random.uniform(low=0, high=1, size=5))
-        pop.iloc[i]["fitness"] = feval(pop.iloc[i]["search"], pruning_threshold=pruning_threshold, eval=eval)
+        pop.iloc[i]["fitness"] = feval(pop.iloc[i]["search"], pruning_threshold=pruning_threshold, eval=eval, social_net_size=social_net_size)
     return(pop)
 
 
-def next_gen(prev, elites=5, xover="random", mutation_rate=.1, run_duration=_RUN_DURATION, pruning_threshold=0, eval="clustering"):
+def next_gen(prev, elites=5, xover="random", mutation_rate=.1, run_duration=_RUN_DURATION, pruning_threshold=0, eval="clustering", social_net_size=_SOCIAL_SIZE):
     """ Helper function for evolve. Takes a generation of the population and generates the following generation according to specified 
         parameters.
 
@@ -121,12 +121,12 @@ def next_gen(prev, elites=5, xover="random", mutation_rate=.1, run_duration=_RUN
         pop.loc[i]["search"] = child
     
     for i in range(len(pop)):
-        pop.iloc[i]["fitness"] = feval(pop.iloc[i]["search"], run_duration=run_duration, pruning_threshold=pruning_threshold, eval=eval)
+        pop.iloc[i]["fitness"] = feval(pop.iloc[i]["search"], run_duration=run_duration, pruning_threshold=pruning_threshold, eval=eval, social_net_size=social_net_size)
 
     print("fin: ", pop)
     return pop
 
-def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="uniform", mutation_rate=0.05, run_duration=_RUN_DURATION, show=False, save=True, pruning_threshold=0, eval="clustering"):
+def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="uniform", mutation_rate=0.05, run_duration=_RUN_DURATION, social_net_size=_SOCIAL_SIZE, show=False, save=True, pruning_threshold=0, eval="clustering"):
     """Carries out evolution process with parameters for specifying population, evolution, and evaluation characteristics.
 
     Args:
@@ -143,7 +143,7 @@ def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="unif
         pruning_threshold (int, optional): Passed to feval. Determines whether networks should be pruned before evaluation. May improve evaluation accuracy. Defaults to 0.
     """
     print(f"Evolving: pop size = {pop_size} for {generations} generations")
-    prev = init_pop(pop_size, pruning_threshold=pruning_threshold, eval=eval)
+    prev = init_pop(pop_size, pruning_threshold=pruning_threshold, eval=eval, social_net_size=social_net_size)
 
     evos = pd.DataFrame(index=pd.RangeIndex(start=0, stop=generations, name="generation"), columns=["best", "mean"])
     if mutation == "uniform":
@@ -153,7 +153,7 @@ def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="unif
             evos.loc[i]["mean"] = prev["fitness"].mean()
 #             mutation_rate=max(2-evos.loc[i]["best"]*2000,.1)
             print("Gen: ", i, "\tMax: ", evos.loc[i]["best"], "\tMean: ", evos.loc[i]["mean"])
-            prev = next_gen(prev, elites=elites, mutation_rate=mutation_rate, run_duration=run_duration, pruning_threshold=pruning_threshold, eval=eval)
+            prev = next_gen(prev, elites=elites, mutation_rate=mutation_rate, run_duration=run_duration, pruning_threshold=pruning_threshold, eval=eval, social_net_size=social_net_size)
             
             
 
@@ -162,7 +162,7 @@ def evolve(generations=20, pop_size=10, elites=2, xover="random", mutation="unif
                     prev.to_csv(f"evo_run_gen{i}.csv")
                 if show:
                     print(f"Generation {i} best subject:", prev.iloc[pd.to_numeric(prev.fitness).idxmax()])
-                    feval(prev.iloc[pd.to_numeric(prev.fitness).idxmax()]['search'], show=True, pruning_threshold=pruning_threshold, eval=eval)
+                    feval(prev.iloc[pd.to_numeric(prev.fitness).idxmax()]['search'], show=True, pruning_threshold=pruning_threshold, eval=eval, social_net_size=social_net_size)
 
 #     if mutation == "non-uniform":
 #         for i in range(0, generations):
