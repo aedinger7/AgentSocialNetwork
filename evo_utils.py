@@ -48,7 +48,7 @@ def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0, e
 
     if eval=="average":
         try:
-            return max(0, (network.social_clustering(pruning_threshold=pruning_threshold) + network.social_modularity(pruning_threshold=pruning_threshold))/2)
+            return max(0, (network.social_clustering(pruning_threshold=pruning_threshold) + network.social_modularity(pruning_threshold=0))/2)
         except:
             return 0
 # def plot(outputs, step_size=_STEP_SIZE):
