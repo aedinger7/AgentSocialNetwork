@@ -11,7 +11,7 @@ _SOCIAL_SIZE = 20
 Includes various functions for running evolutions on social_net objects, representing networks of social agents.
 """
 
-def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0, eval="clustering", social_net_size=_SOCIAL_SIZE):
+def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0, eval="average", social_net_size=_SOCIAL_SIZE):
     """Function for evaluating evolutions of social_nets.
 
     Args:
@@ -46,9 +46,9 @@ def feval(params, run_duration=_RUN_DURATION, show=False, pruning_threshold=0, e
         except:
             return 0
 
-    if eval == "average":
+    if eval=="average":
         try:
-            return (max(0, network.social_clustering(pruning_threshold=pruning_threshold)) + max(0, network.social_modularity(pruning_threshold=pruning_threshold)))/2
+            return max(0, (network.social_clustering(pruning_threshold=pruning_threshold) + network.social_modularity(pruning_threshold=pruning_threshold))/2)
         except:
             return 0
 # def plot(outputs, step_size=_STEP_SIZE):
