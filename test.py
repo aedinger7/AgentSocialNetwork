@@ -4,7 +4,7 @@ from evo_utils import evolve
 import pandas as pd
 import networkx as nx
 import numpy as np
-import matplotlib as plt
+import matplotlib.pyplot as plt
 """Example run and evaluation usage for evolving a social_net object
 """
 
